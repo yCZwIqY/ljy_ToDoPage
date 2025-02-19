@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${mango.variable} antialiased font-mango`}>{children}</body>
+            <body className={`${mango.variable} antialiased font-mango w-dvw h-dvh bg-light-default`}>{children}</body>
         </html>
     );
 }
