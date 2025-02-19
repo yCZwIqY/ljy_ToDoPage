@@ -48,9 +48,12 @@ const BoardList = () => {
                 targetOrder = (targetOrder > dragOrder ? (boards[targetIdx + 1].order - targetOrder) : targetOrder + (targetOrder - boards[targetIdx - 1].order)) / 2;
             }
         } else {
-            targetOrder = targetIdx >= boards.length - 1 ? targetOrder + 1 : (boards[targetIdx + 1].order - targetOrder) / 2;
+            if (targetIdx >= boards.length - 1) {
+                targetOrder = targetOrder + 1;
+            }
+            targetOrder = targetOrder > dragOrder ? targetOrder + (targetOrder - boards[targetIdx - 1].order) : (boards[targetIdx + 1].order - targetOrder) / 2;
         }
-        console.log(targetOrder)
+        console.log(targetOrder, targetIdx, e.clientX < hoverMiddleX)
 
         const dragItem = boards.find(({id}) => id === dragId)!;
         editBoard(dragId, {...dragItem, order: targetOrder});
