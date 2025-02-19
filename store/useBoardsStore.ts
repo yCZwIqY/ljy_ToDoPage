@@ -20,7 +20,7 @@ const useBoardsStore = create<BoardStore>((set) => ({
     lastId: 0,
     addBoard: (name: string) => set((state) => {
         const id = state.lastId + 1;
-        const order = state.boards.length;
+        const order = state.boards.length ? state.boards.length + 1 : 1;
         return ({boards: [...state.boards, {name, id, order}], lastId: id});
     }),
     editBoard: (targetId: number, newBoard: Board) => set((state) => ({
@@ -28,9 +28,14 @@ const useBoardsStore = create<BoardStore>((set) => ({
             ...board,
             ...newBoard
         } : board)
+            .sort((a, b) => a.order - b.order)
     })),
     removeBoard: (targetId: number) => set((state) => ({boards: state.boards.filter(({id}) => id !== targetId)})),
-    initBoard:  (boards: Board[], lastId: number)  => set(() => ({boards, lastId}))
+    initBoard: (boards: Board[]) => set(() => ({
+        boards: boards.sort((a, b) => a.order - b.order)
+            .map((board, idx) => ({...board, order: idx + 1})),
+        lastId: boards.length
+    }))
 }));
 
 export default useBoardsStore;

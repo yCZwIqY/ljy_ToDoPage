@@ -7,9 +7,11 @@ import {IoIosCheckmarkCircle} from "react-icons/io";
 interface BoardItemProps {
     id: number;
     name: string;
+    onDragStart: (id: number) => void;
+    onDrop: (e: React.DragEvent, targetId: number) => void;
 }
 
-const BoardItem = ({id, name}: BoardItemProps) => {
+const BoardItem = ({id, name, onDragStart, onDrop}: BoardItemProps) => {
     const {editBoard, removeBoard} = useBoardsStore();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState<string>(name);
@@ -36,9 +38,16 @@ const BoardItem = ({id, name}: BoardItemProps) => {
         setEditMode(false);
     }
 
+    const onDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+    }
 
     return (
-        <div className={'min-w-96 h-full flex flex-col text-subtitle mb-3'}>
+        <div className={'min-w-96 h-full flex flex-col text-subtitle mb-3 '}
+             onDragStart={() => onDragStart(id)}
+             onDragOver={onDragOver}
+             onDrop={(e) => onDrop(e, id)}
+             draggable>
             <div className={'flex justify-between mb-3'}>
                 {editMode
                     ? <>
