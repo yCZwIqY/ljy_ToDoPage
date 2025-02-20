@@ -34,17 +34,19 @@ const DnDProvider = ({id, list, direction = 'horizontal', children}: DnDProvider
 
     const onDrop = (e: React.DragEvent, boardId: string, targetId: number, callback) => {
         e.preventDefault();
+        e.stopPropagation();
 
         if (!targetId || !dragId || id !== boardId) return;
         const targetIdx = list.findIndex(({id}) => id === targetId);
 
         const targetElement = e.currentTarget;
         const {left, width, top, height} = targetElement.getBoundingClientRect();
-        const hoverMiddleX = direction === 'horizontal' ? (left + width / 2) : (top + height / 2);
+        const hoverMiddle = direction === 'horizontal' ? (left + width / 2) : (top + height / 2);
+        const mousePos = direction === 'horizontal' ? e.clientX : e.clientY;
         const dragOrder = list.find(({id}) => id === dragId)?.order;
         let targetOrder = list[targetIdx].order;
 
-        if (e.clientX < hoverMiddleX) {
+        if (mousePos < hoverMiddle) {
             if (targetIdx <= 0) {
                 targetOrder = targetOrder / 2
             } else {
@@ -58,6 +60,7 @@ const DnDProvider = ({id, list, direction = 'horizontal', children}: DnDProvider
         }
 
         const dragItem = list.find(({id}) => id === dragId)!;
+
         callback(dragId, {...dragItem, order: targetOrder})
     }
 
