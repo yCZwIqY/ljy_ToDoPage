@@ -1,74 +1,122 @@
-import React, {createContext, ReactNode, useState} from 'react';
-import {DragItem} from "@/store/useBoardsStore";
+import React, { createContext, ReactNode, useState } from 'react';
+import { Board, DragItem } from '@/store/useBoardsStore';
+import { Todo } from '@/store/useTodoStore';
+
+export type DragType = 'board' | 'todo';
 
 interface DnDProviderProps {
-    id: string;
     children: ReactNode;
-    list: DragItem[];
-    direction?: 'horizontal' | 'vertical';
+    onBoardMove: (target: Board) => void;
+    onTodoMove: (target: Todo) => void;
 }
 
 interface DndContextValue {
-    id: string;
-    dragId: null | number;
-    onDragStart: (id: number) => void;
-    onDrop: (e: React.DragEvent, boardId: string, targetId: number, callback) => void;
+    onDragStart: (e: React.DragEvent, target: DragItem, type: DragType) => void;
+    onDrop: (
+        e: React.DragEvent,
+        type: DragType,
+        target: DragItem,
+        list: DragItem[],
+    ) => void;
 }
 
 export const DndContext = createContext<DndContextValue>({
-    id: '',
-    dragId: null,
-    onDragStart: (id: number) => {
-    },
-    onDrop: (e: React.DragEvent, boardId: string, targetId: number, callback) => {
-    }
-
+    onDragStart: (e: React.DragEvent, target: DragItem, type: DragType) => {},
+    onDrop: (
+        e: React.DragEvent,
+        type: DragType,
+        target: DragItem,
+        list: DragItem[],
+    ) => {},
 });
 
-const DnDProvider = ({id, list, direction = 'horizontal', children}: DnDProviderProps) => {
-    const [dragId, setDragId] = useState<number | null>(null);
+const DnDProvider = ({
+    onBoardMove,
+    onTodoMove,
+    children,
+}: DnDProviderProps) => {
+    const [dragTarget, setDragTarget] = useState<DragItem | null>(null);
+    const [dragType, setDragType] = useState<DragType | null>(null);
 
-    const onDragStart = (id: number) => {
-        setDragId(id);
-    }
+    const onDragStart = (e, target: DragItem, type: DragType) => {
+        e.stopPropagation();
+        setDragTarget(target);
+        setDragType(type);
+    };
 
-    const onDrop = (e: React.DragEvent, boardId: string, targetId: number, callback) => {
+    const onDrop = (
+        e: React.DragEvent,
+        dropType: DragType,
+        dropTarget: DragItem,
+        list: DragItem[],
+    ) => {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!targetId || !dragId || id !== boardId) return;
-        const targetIdx = list.findIndex(({id}) => id === targetId);
+        if (!dragTarget || !dropTarget) return;
 
+        if (dragType === 'todo' && dropType === 'todo') {
+            if ((dragTarget as Todo).boardId === (dropTarget as Todo).boardId) {
+                onTodoMove(
+                    getMovedTarget(e, 'ver', dragTarget, dropTarget, list),
+                );
+            } else {
+                onTodoMove({
+                    ...getMovedTarget(e, 'ver', dragTarget, dropTarget, list),
+                    boardId: (dropTarget as Todo).boardId,
+                } as Todo);
+            }
+        } else if (dragType === 'board' && dropType === 'board') {
+            onBoardMove(getMovedTarget(e, 'hor', dragTarget, dropTarget, list));
+        } else if (dragType === 'todo' && dropType === 'board') {
+            onTodoMove({
+                ...dragTarget,
+                boardId: dropTarget.id,
+                order: 999,
+            } as Todo);
+        }
+    };
+
+    const getMovedTarget = (
+        e: React.DragEvent,
+        dir: 'hor' | 'ver',
+        dragTarget,
+        dropTarget,
+        list,
+    ) => {
         const targetElement = e.currentTarget;
-        const {left, width, top, height} = targetElement.getBoundingClientRect();
-        const hoverMiddle = direction === 'horizontal' ? (left + width / 2) : (top + height / 2);
-        const mousePos = direction === 'horizontal' ? e.clientX : e.clientY;
-        const dragOrder = list.find(({id}) => id === dragId)?.order;
-        let targetOrder = list[targetIdx].order;
+        const { left, width, top, height } =
+            targetElement.getBoundingClientRect();
+        const hoverMiddle = dir === 'hor' ? left + width / 2 : top + height / 2;
+        const mousePos = dir === 'hor' ? e.clientX : e.clientY;
+        const dragOrder = dragTarget.order;
+        let targetOrder = dropTarget.order;
 
+        const targetIdx = list.findIndex(({ id }) => id === dropTarget.id);
         if (mousePos < hoverMiddle) {
             if (targetIdx <= 0) {
-                targetOrder = targetOrder / 2
+                targetOrder = targetOrder / 2;
             } else {
-                targetOrder = (targetOrder > dragOrder ? (list[targetIdx + 1].order - targetOrder) : targetOrder + (targetOrder - list[targetIdx - 1].order)) / 2;
+                targetOrder =
+                    (targetOrder > dragOrder
+                        ? list[targetIdx + 1].order - targetOrder
+                        : targetOrder +
+                          (targetOrder - list[targetIdx - 1].order)) / 2;
             }
         } else {
             if (targetIdx >= list.length - 1) {
                 targetOrder = targetOrder + 1;
             }
-            targetOrder = targetOrder > dragOrder ? targetOrder + (targetOrder - list[targetIdx - 1].order) : (list[targetIdx + 1].order - targetOrder) / 2;
+            targetOrder =
+                targetOrder > dragOrder
+                    ? targetOrder + (targetOrder - list[targetIdx - 1].order)
+                    : (list[targetIdx + 1].order - targetOrder) / 2;
         }
 
-        const dragItem = list.find(({id}) => id === dragId)!;
+        return { ...dragTarget, order: targetOrder };
+    };
 
-        callback(dragId, {...dragItem, order: targetOrder})
-    }
-
-    return (
-        <DndContext value={{id, dragId, onDragStart, onDrop}}>
-            {children}
-        </DndContext>
-    );
+    return <DndContext value={{ onDragStart, onDrop }}>{children}</DndContext>;
 };
 
 export default DnDProvider;

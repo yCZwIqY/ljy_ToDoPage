@@ -15,6 +15,7 @@ interface TodoStore {
     editTodo: (targetId: number, todo: Todo) => void;
     remoteTodo: (targetId: number) => void;
     initTodo: (todos: Todo[], lastId: number) => void;
+    getLastId: () => number;
 }
 
 const useTodoStore = create<TodoStore>((set, get) => ({

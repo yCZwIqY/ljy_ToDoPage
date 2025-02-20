@@ -4,9 +4,8 @@ import useBoardsStore from '@/store/useBoardsStore';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import { IoIosCheckmarkCircle } from 'react-icons/io';
 import { BiPlus } from 'react-icons/bi';
-import useTodoStore, { Todo } from '@/store/useTodoStore';
+import useTodoStore from '@/store/useTodoStore';
 import TodoItem from '@/app/_components/TodoItem';
-import DnDProvider from '@/app/_components/DnDProvider';
 import DnDItem from '@/app/_components/DnDItem';
 
 interface BoardItemProps {
@@ -19,7 +18,7 @@ const BoardItem = ({ id, name }: BoardItemProps) => {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState<string>(name);
     const inputRef = useRef<HTMLInputElement>(null);
-    const { addTodo, getTodos, editTodo } = useTodoStore();
+    const { addTodo, getTodos } = useTodoStore();
 
     useEffect(() => {
         if (editMode && inputRef.current) {
@@ -46,10 +45,6 @@ const BoardItem = ({ id, name }: BoardItemProps) => {
     const onAddTodo = () => {
         addTodo(id);
     };
-    const onMoveItem = (id: number, todo: Todo) => {
-        editTodo(id, todo);
-    };
-
     return (
         <div className={'min-w-96 h-full flex flex-col text-subtitle mb-3 '}>
             <div className={'flex justify-between mb-3'}>
@@ -90,21 +85,17 @@ const BoardItem = ({ id, name }: BoardItemProps) => {
                     'bg-white flex-1 rounded-lg shadow-md overflow-y-scroll'
                 }
             >
-                <DnDProvider
-                    id={id.toString()}
-                    list={getTodos(id)}
-                    direction={'vertical'}
-                >
-                    {getTodos(id).map((todo) => (
-                        <DnDItem
-                            key={todo.id!}
-                            id={todo.id!}
-                            onMoveItem={onMoveItem}
-                        >
-                            <TodoItem {...todo} />
-                        </DnDItem>
-                    ))}
-                </DnDProvider>
+                {getTodos(id).map((todo) => (
+                    <DnDItem
+                        key={todo.id!}
+                        id={todo.id!}
+                        type={'todo'}
+                        target={todo}
+                        list={getTodos(id)}
+                    >
+                        <TodoItem {...todo} />
+                    </DnDItem>
+                ))}
             </div>
         </div>
     );

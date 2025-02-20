@@ -1,15 +1,16 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import BoardItem from '@/app/_components/BoardItem';
-import useBoardsStore, { Board } from '@/store/useBoardsStore';
-import DnDProvider from '@/app/_components/DnDProvider';
+import useBoardsStore, { Board, DragItem } from '@/store/useBoardsStore';
+import DnDProvider, { DragType } from '@/app/_components/DnDProvider';
 import DnDItem from '@/app/_components/DnDItem';
-import useTodoStore from '@/store/useTodoStore';
+import useTodoStore, { Todo } from '@/store/useTodoStore';
 
 const BoardList = () => {
     const { boards, lastId, initBoard, editBoard } = useBoardsStore();
     const { todos, lastId: todoLastId, initTodo } = useTodoStore();
     const [initComplete, setInitComplete] = useState(false);
+    const { editTodo } = useTodoStore();
 
     useEffect(() => {
         const board = localStorage.getItem('boards');
@@ -41,8 +42,20 @@ const BoardList = () => {
         }
     }, [todos]);
 
-    const onMoveItem = (id: number, board: Board) => {
-        editBoard(id, board);
+    const onDragComplete = (type: DragType, target: DragItem) => {
+        if (type === 'board') {
+            editBoard(target.id!, target as Board);
+        } else {
+            editTodo(target.id!, target as Todo);
+        }
+    };
+
+    const onBoardMove = (target: Board) => {
+        editBoard(target.id!, target);
+    };
+
+    const onTodoMove = (target: Todo) => {
+        editTodo(target.id!, target);
     };
 
     return (
@@ -51,12 +64,18 @@ const BoardList = () => {
                 'flex-1 overflow-y-hidden overflow-x-scroll bg-light-default m-10 p-14 rounded-lg flex gap-4'
             }
         >
-            <DnDProvider id={'dashboard'} list={boards}>
+            <DnDProvider
+                id={'dashboard'}
+                onBoardMove={onBoardMove}
+                onTodoMove={onTodoMove}
+            >
                 {boards.map((board) => (
                     <DnDItem
                         key={`${lastId}-${board.id}-${board.order}`}
                         id={board.id!}
-                        onMoveItem={onMoveItem}
+                        type={'board'}
+                        target={board}
+                        list={boards}
                     >
                         <BoardItem {...board} />
                     </DnDItem>
