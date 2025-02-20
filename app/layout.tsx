@@ -21,7 +21,7 @@ const mango = localFont({
 });
 
 export const metadata: Metadata = {
-    title: 'Jiyoon Kanban',
+    title: 'Jiyoon Kanban Board',
 };
 
 export default function RootLayout({
@@ -31,11 +31,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body
-                className={`${mango.variable} antialiased font-mango w-dvw h-dvh bg-light-default`}
-            >
-                {children}
-            </body>
+            <body className={`${mango.variable} antialiased font-mango w-dvw h-dvh bg-light-default`}>{children}</body>
         </html>
     );
 }
