@@ -10,13 +10,7 @@ interface EditableText {
     defaultValue: string;
 }
 
-const EditableText = ({
-    type = 'text',
-    onComplete,
-    onDelete,
-    children,
-    defaultValue,
-}: EditableText) => {
+const EditableText = ({ type = 'text', onComplete, onDelete, children, defaultValue }: EditableText) => {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState<string>(defaultValue);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -43,11 +37,10 @@ const EditableText = ({
                 <>
                     {type === 'text' ? (
                         <input
-                            className={
-                                'w-full bg-transparent border-b-2 border-mute-default outline-none'
-                            }
+                            className={'w-full bg-transparent border-b-2 border-mute-default outline-none'}
                             ref={inputRef}
                             value={inputValue}
+                            onBlur={onSave}
                             onChange={(e) => setInputValue(e.target.value)}
                         />
                     ) : (
@@ -55,6 +48,7 @@ const EditableText = ({
                             className={'flex-1 border rounded-md resize-none'}
                             ref={textAreaRef}
                             value={inputValue}
+                            onBlur={onSave}
                             onChange={(e) => setInputValue(e.target.value)}
                         />
                     )}
