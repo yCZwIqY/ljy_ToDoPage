@@ -1,4 +1,5 @@
 # 칸반 보드 기반 투두 리스트
+![image](https://github.com/user-attachments/assets/292a1701-5602-455e-88c2-6024f064f736)
 
 [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app)으로 생성한 Next.js 기반의 칸반 보드입니다
 
