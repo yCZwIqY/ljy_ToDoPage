@@ -1,9 +1,12 @@
 import {create} from "zustand/react";
 
-export interface Board {
+export interface DragItem {
     id?: number;
-    name: string;
     order?: number;
+}
+
+export interface Board extends DragItem {
+    name: string;
 }
 
 interface BoardStore {

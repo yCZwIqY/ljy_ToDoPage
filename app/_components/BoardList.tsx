@@ -1,12 +1,13 @@
 'use client'
 import React, {useEffect, useState} from 'react';
 import BoardItem from "@/app/_components/BoardItem";
-import useBoardsStore from "@/store/useBoardsStore";
+import useBoardsStore, {Board} from "@/store/useBoardsStore";
+import DnDProvider from "@/app/_components/DnDProvider";
+import DnDItem from "@/app/_components/DnDItem";
 
 const BoardList = () => {
     const {boards, lastId, initBoard, editBoard} = useBoardsStore();
     const [initComplete, setInitComplete] = useState(false);
-    const [dragId, setDragId] = useState<number | null>(null);
 
     useEffect(() => {
         const board = localStorage.getItem('boards');
@@ -26,46 +27,18 @@ const BoardList = () => {
         }
     }, [boards]);
 
-    const onDragStart = (id: number) => {
-        setDragId(id);
+    const onMoveItem = (id: number, board: Board) => {
+        editBoard(id, board);
     }
-    const onDrop = (e: React.DragEvent, targetId: number) => {
-        e.preventDefault();
-
-        if (!targetId || !dragId) return;
-        const targetIdx = boards.findIndex(({id}) => id === targetId);
-
-        const targetElement = e.currentTarget;
-        const {left, width} = targetElement.getBoundingClientRect();
-        const hoverMiddleX = left + width / 2;
-        const dragOrder = boards.find(({id}) => id === dragId)?.order;
-        let targetOrder = boards[targetIdx].order;
-
-        if (e.clientX < hoverMiddleX) {
-            if (targetIdx <= 0) {
-                targetOrder = targetOrder / 2
-            } else {
-                targetOrder = (targetOrder > dragOrder ? (boards[targetIdx + 1].order - targetOrder) : targetOrder + (targetOrder - boards[targetIdx - 1].order)) / 2;
-            }
-        } else {
-            if (targetIdx >= boards.length - 1) {
-                targetOrder = targetOrder + 1;
-            }
-            targetOrder = targetOrder > dragOrder ? targetOrder + (targetOrder - boards[targetIdx - 1].order) : (boards[targetIdx + 1].order - targetOrder) / 2;
-        }
-        console.log(targetOrder, targetIdx, e.clientX < hoverMiddleX)
-
-        const dragItem = boards.find(({id}) => id === dragId)!;
-        editBoard(dragId, {...dragItem, order: targetOrder});
-    }
-
 
     return (
         <div className={'flex-1 overflow-y-hidden overflow-x-scroll bg-light-default m-10 p-10 rounded-lg flex gap-4'}>
-            {boards.map(board => <BoardItem key={board.id}
-                                            onDragStart={onDragStart}
-                                            onDrop={onDrop}
-                                            {...board}/>)}
+            <DnDProvider id={'dashboard'} list={boards}>
+                {boards.map(board => <DnDItem key={board.id} id={board.id!} onMoveItem={onMoveItem}>
+                    <BoardItem {...board}/>
+                </DnDItem>)}
+            </DnDProvider>
+
         </div>
     );
 };
