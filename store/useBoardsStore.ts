@@ -1,8 +1,8 @@
 import { create } from 'zustand/react';
 
 export interface DragItem {
-    id?: number;
-    order?: number;
+    id: number;
+    order: number;
 }
 
 export interface Board extends DragItem {

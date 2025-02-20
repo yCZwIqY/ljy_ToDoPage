@@ -1,8 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import BoardItem from '@/app/_components/BoardItem';
-import useBoardsStore, { Board, DragItem } from '@/store/useBoardsStore';
-import DnDProvider, { DragType } from '@/app/_components/DnDProvider';
+import useBoardsStore, { Board } from '@/store/useBoardsStore';
+import DnDProvider from '@/app/_components/DnDProvider';
 import DnDItem from '@/app/_components/DnDItem';
 import useTodoStore, { Todo } from '@/store/useTodoStore';
 
@@ -26,21 +26,21 @@ const BoardList = () => {
         }
 
         setInitComplete(true);
-    }, []);
+    }, [initBoard, initTodo]);
 
     useEffect(() => {
         if (initComplete) {
             localStorage.setItem('boards', JSON.stringify(boards));
             localStorage.setItem('lastId', lastId.toString());
         }
-    }, [boards]);
+    }, [initComplete, boards, lastId]);
 
     useEffect(() => {
         if (initComplete) {
             localStorage.setItem('todos', JSON.stringify(todos));
             localStorage.setItem('todoLastId', todoLastId.toString());
         }
-    }, [todos]);
+    }, [initComplete, todos, todoLastId]);
 
     const onBoardMove = (target: Board) => {
         editBoard(target.id!, target);
@@ -56,11 +56,7 @@ const BoardList = () => {
                 'flex-1 overflow-y-hidden overflow-x-scroll bg-light-default m-10 p-14 rounded-lg flex gap-4'
             }
         >
-            <DnDProvider
-                id={'dashboard'}
-                onBoardMove={onBoardMove}
-                onTodoMove={onTodoMove}
-            >
+            <DnDProvider onBoardMove={onBoardMove} onTodoMove={onTodoMove}>
                 {boards.map((board) => (
                     <DnDItem
                         key={`${lastId}-${board.id}-${board.order}`}

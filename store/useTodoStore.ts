@@ -15,7 +15,6 @@ interface TodoStore {
     editTodo: (targetId: number, todo: Todo) => void;
     remoteTodo: (targetId: number) => void;
     initTodo: (todos: Todo[], lastId: number) => void;
-    getLastId: () => number;
 }
 
 const useTodoStore = create<TodoStore>((set, get) => ({
@@ -49,9 +48,7 @@ const useTodoStore = create<TodoStore>((set, get) => ({
         })),
     initTodo: (todos: Todo[], lastId) =>
         set(() => ({
-            todos: todos
-                .sort((a, b) => a.order - b.order)
-                .map((todo, idx) => ({ ...todo, order: idx + 1 })),
+            todos,
             lastId,
         })),
 }));

@@ -14,7 +14,7 @@ const TodoItem = (todo: TodoItemProps) => {
     const onDelete = () => {
         remoteTodo(id);
     };
-    const onComplete = (value) => {
+    const onComplete = (value: string) => {
         editTodo(id, { ...todo, content: value, createdAt: new Date() });
     };
 

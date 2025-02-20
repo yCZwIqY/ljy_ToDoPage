@@ -10,17 +10,18 @@ import EditableText from '@/app/_components/EditableText';
 interface BoardItemProps {
     id: number;
     name: string;
+    order: number;
 }
 
-const BoardItem = ({ id, name }: BoardItemProps) => {
+const BoardItem = ({ id, name, order }: BoardItemProps) => {
     const { editBoard, removeBoard } = useBoardsStore();
     const { addTodo, getTodos } = useTodoStore();
 
     const onDelete = () => {
         removeBoard(id!);
     };
-    const onComplete = (value) => {
-        editBoard(id!, { name: value });
+    const onComplete = (value: string) => {
+        editBoard(id, { name: value, id, order });
     };
 
     const onAddTodo = () => {

@@ -12,46 +12,29 @@ interface DnDProviderProps {
 
 interface DndContextValue {
     onDragStart: (e: React.DragEvent, target: DragItem, type: DragType) => void;
-    onDrop: (
-        e: React.DragEvent,
-        type: DragType,
-        target: DragItem,
-        list: DragItem[],
-    ) => void;
+    onDrop: (e: React.DragEvent, type: DragType, target: DragItem, list: DragItem[]) => void;
 }
 
 export const DndContext = createContext<DndContextValue>({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onDragStart: (e: React.DragEvent, target: DragItem, type: DragType) => {},
-    onDrop: (
-        e: React.DragEvent,
-        type: DragType,
-        target: DragItem,
-        list: DragItem[],
-    ) => {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onDrop: (e: React.DragEvent, type: DragType, target: DragItem, list: DragItem[]) => {},
 });
 
-const DnDProvider = ({
-    onBoardMove,
-    onTodoMove,
-    children,
-}: DnDProviderProps) => {
+const DnDProvider = ({ onBoardMove, onTodoMove, children }: DnDProviderProps) => {
     const [dragTarget, setDragTarget] = useState<DragItem | null>(null);
     const [dragType, setDragType] = useState<DragType | null>(null);
 
     const LAST_ORDER = 999;
 
-    const onDragStart = (e, target: DragItem, type: DragType) => {
+    const onDragStart = (e: React.DragEvent, target: DragItem, type: DragType) => {
         e.stopPropagation();
         setDragTarget(target);
         setDragType(type);
     };
 
-    const onDrop = (
-        e: React.DragEvent,
-        dropType: DragType,
-        dropTarget: DragItem,
-        list: DragItem[],
-    ) => {
+    const onDrop = (e: React.DragEvent, dropType: DragType, dropTarget: DragItem, list: DragItem[]) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -59,9 +42,7 @@ const DnDProvider = ({
 
         if (dragType === 'todo' && dropType === 'todo') {
             if ((dragTarget as Todo).boardId === (dropTarget as Todo).boardId) {
-                onTodoMove(
-                    getMovedTarget(e, 'ver', dragTarget, dropTarget, list),
-                );
+                onTodoMove(getMovedTarget(e, 'ver', dragTarget, dropTarget, list) as Todo);
             } else {
                 onTodoMove({
                     ...getMovedTarget(e, 'ver', dragTarget, dropTarget, list),
@@ -69,7 +50,7 @@ const DnDProvider = ({
                 } as Todo);
             }
         } else if (dragType === 'board' && dropType === 'board') {
-            onBoardMove(getMovedTarget(e, 'hor', dragTarget, dropTarget, list));
+            onBoardMove(getMovedTarget(e, 'hor', dragTarget, dropTarget, list) as Board);
         } else if (dragType === 'todo' && dropType === 'board') {
             onTodoMove({
                 ...dragTarget,
@@ -82,13 +63,12 @@ const DnDProvider = ({
     const getMovedTarget = (
         e: React.DragEvent,
         dir: 'hor' | 'ver',
-        dragTarget,
-        dropTarget,
-        list,
-    ) => {
+        dragTarget: DragItem,
+        dropTarget: DragItem,
+        list: DragItem[],
+    ): DragItem => {
         const targetElement = e.currentTarget;
-        const { left, width, top, height } =
-            targetElement.getBoundingClientRect();
+        const { left, width, top, height } = targetElement.getBoundingClientRect();
         const hoverMiddle = dir === 'hor' ? left + width / 2 : top + height / 2;
         const mousePos = dir === 'hor' ? e.clientX : e.clientY;
         const dragOrder = dragTarget.order;
@@ -102,8 +82,7 @@ const DnDProvider = ({
                 targetOrder =
                     (targetOrder > dragOrder
                         ? list[targetIdx + 1].order - targetOrder
-                        : targetOrder +
-                          (targetOrder - list[targetIdx - 1].order)) / 2;
+                        : targetOrder + (targetOrder - list[targetIdx - 1].order)) / 2;
             }
         } else {
             if (targetIdx >= list.length - 1) {
