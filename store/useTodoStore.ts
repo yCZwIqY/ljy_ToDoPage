@@ -47,7 +47,13 @@ const useTodoStore = create<TodoStore>((set, get) => ({
         set((state) => ({
             todos: state.todos.filter((it) => it.id !== targetId),
         })),
-    initTodo: (todos: Todo[], lastId: number) => set(() => ({ todos, lastId })),
+    initTodo: (todos: Todo[], lastId) =>
+        set(() => ({
+            todos: todos
+                .sort((a, b) => a.order - b.order)
+                .map((todo, idx) => ({ ...todo, order: idx + 1 })),
+            lastId,
+        })),
 }));
 
 export default useTodoStore;

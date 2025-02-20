@@ -38,6 +38,8 @@ const DnDProvider = ({
     const [dragTarget, setDragTarget] = useState<DragItem | null>(null);
     const [dragType, setDragType] = useState<DragType | null>(null);
 
+    const LAST_ORDER = 999;
+
     const onDragStart = (e, target: DragItem, type: DragType) => {
         e.stopPropagation();
         setDragTarget(target);
@@ -72,7 +74,7 @@ const DnDProvider = ({
             onTodoMove({
                 ...dragTarget,
                 boardId: dropTarget.id,
-                order: 999,
+                order: LAST_ORDER,
             } as Todo);
         }
     };

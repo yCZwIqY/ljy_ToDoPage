@@ -42,14 +42,6 @@ const BoardList = () => {
         }
     }, [todos]);
 
-    const onDragComplete = (type: DragType, target: DragItem) => {
-        if (type === 'board') {
-            editBoard(target.id!, target as Board);
-        } else {
-            editTodo(target.id!, target as Todo);
-        }
-    };
-
     const onBoardMove = (target: Board) => {
         editBoard(target.id!, target);
     };

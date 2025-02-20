@@ -1,12 +1,11 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import useBoardsStore from '@/store/useBoardsStore';
-import { MdDelete, MdEdit } from 'react-icons/md';
-import { IoIosCheckmarkCircle } from 'react-icons/io';
 import { BiPlus } from 'react-icons/bi';
 import useTodoStore from '@/store/useTodoStore';
 import TodoItem from '@/app/_components/TodoItem';
 import DnDItem from '@/app/_components/DnDItem';
+import EditableText from '@/app/_components/EditableText';
 
 interface BoardItemProps {
     id: number;
@@ -15,31 +14,13 @@ interface BoardItemProps {
 
 const BoardItem = ({ id, name }: BoardItemProps) => {
     const { editBoard, removeBoard } = useBoardsStore();
-    const [editMode, setEditMode] = useState<boolean>(false);
-    const [inputValue, setInputValue] = useState<string>(name);
-    const inputRef = useRef<HTMLInputElement>(null);
     const { addTodo, getTodos } = useTodoStore();
-
-    useEffect(() => {
-        if (editMode && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [editMode]);
-
-    const onChange = (e) => {
-        setInputValue(e.target.value);
-    };
-
-    const onEdit = () => {
-        setEditMode(true);
-    };
 
     const onDelete = () => {
         removeBoard(id!);
     };
-    const onComplete = () => {
-        editBoard(id!, { name: inputValue });
-        setEditMode(false);
+    const onComplete = (value) => {
+        editBoard(id!, { name: value });
     };
 
     const onAddTodo = () => {
@@ -47,42 +28,21 @@ const BoardItem = ({ id, name }: BoardItemProps) => {
     };
     return (
         <div className={'min-w-96 h-full flex flex-col text-subtitle mb-3 '}>
-            <div className={'flex justify-between mb-3'}>
-                {editMode ? (
-                    <>
-                        <input
-                            className={
-                                'bg-transparent border-none outline-none underline underline-offset-4'
-                            }
-                            ref={inputRef}
-                            value={inputValue}
-                            onChange={onChange}
-                            onBlur={onComplete}
-                        />
-                        <button onClick={onComplete}>
-                            <IoIosCheckmarkCircle />
-                        </button>
-                    </>
-                ) : (
-                    <>
-                        <h3>{name}</h3>
-                        <span>
-                            <button onClick={onEdit}>
-                                <MdEdit />
-                            </button>
-                            <button onClick={onDelete}>
-                                <MdDelete />
-                            </button>
-                            <button onClick={onAddTodo}>
-                                <BiPlus />
-                            </button>
-                        </span>
-                    </>
-                )}
+            <div className={'flex justify-center items-start mb-3'}>
+                <EditableText
+                    onComplete={onComplete}
+                    onDelete={onDelete}
+                    defaultValue={name}
+                >
+                    <h3>{name}</h3>
+                </EditableText>
+                <button onClick={onAddTodo}>
+                    <BiPlus color={'#424874'} />
+                </button>
             </div>
             <div
                 className={
-                    'bg-white flex-1 rounded-lg shadow-md overflow-y-scroll'
+                    'bg-white flex-1 rounded-lg shadow-md overflow-y-scroll p-2'
                 }
             >
                 {getTodos(id).map((todo) => (

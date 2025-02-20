@@ -12,7 +12,7 @@ export interface Board extends DragItem {
 interface BoardStore {
     boards: Board[];
     lastId: number;
-    addBoard: (name: string) => void;
+    addBoard: () => void;
     editBoard: (targetId: number, newBoard: Board) => void;
     removeBoard: (targetId: number) => void;
     initBoard: (boards: Board[], lastId: number) => void;
@@ -21,12 +21,12 @@ interface BoardStore {
 const useBoardsStore = create<BoardStore>((set) => ({
     boards: [],
     lastId: 0,
-    addBoard: (name: string) =>
+    addBoard: () =>
         set((state) => {
             const id = state.lastId + 1;
             const order = state.boards.length ? state.boards.length + 1 : 1;
             return {
-                boards: [...state.boards, { name, id, order }],
+                boards: [...state.boards, { name: '새 보드 ' + id, id, order }],
                 lastId: id,
             };
         }),
@@ -47,12 +47,12 @@ const useBoardsStore = create<BoardStore>((set) => ({
         set((state) => ({
             boards: state.boards.filter(({ id }) => id !== targetId),
         })),
-    initBoard: (boards: Board[]) =>
+    initBoard: (boards: Board[], lastId) =>
         set(() => ({
             boards: boards
                 .sort((a, b) => a.order - b.order)
                 .map((board, idx) => ({ ...board, order: idx + 1 })),
-            lastId: boards.length,
+            lastId,
         })),
 }));
 
